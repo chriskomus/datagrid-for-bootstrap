@@ -7,52 +7,6 @@
  */
 
 /*
--------------------------------------- GENERAL FUNCTIONS -------------------------------------------
- */
-
-/**
- * Change string to title case.
- * @param str
- * @returns {string}
- */
-function titleCase(str) {
-    str = str.toLowerCase().split(' ');
-    for (let i = 0; i < str.length; i++) {
-        str[i] = str[i].charAt(0).toUpperCase() + str[i].slice(1);
-    }
-    return str.join(' ');
-}
-
-/**
- * Decode string into html
- * @param inputStr
- * @returns {string}
- */
-function decodeToHTML(inputStr) {
-    const textarea = document.createElement("textarea");
-    textarea.innerHTML = inputStr;
-    return textarea.value;
-}
-
-/**
- * Get price in the correct format, or return a default statement when price is not a number.
- * @param price
- * @param callForPricing
- */
-function getPrice(price, callForPricing = false) {
-    price = parseFloat(price);
-    if (!isNaN(price) && price > 0 && price !== null) {
-        return CURRENCY + (Math.round(price * 100) / 100).toFixed(PRICE_DECIMALS);
-    } else {
-        if (callForPricing === true) {
-            return 'Call for pricing';
-        } else {
-            return null;
-        }
-    }
-}
-
-/*
 -------------------------------------- COOKIES -------------------------------------------
  */
 
@@ -66,8 +20,8 @@ function getPrice(price, callForPricing = false) {
 function cookieManagement(getOrSet, cookieSuffix, cookieValue = null, daysToExpire = 14) {
     let prefix = '';
 
-    if(CONTROLLER) {
-        prefix = CONTROLLER + '_';
+    if(cookiePrefix) {
+        prefix = cookiePrefix + '_';
     } else {
         return null;
     }
@@ -103,8 +57,8 @@ function setCookie(key, value, expireInDays) {
 function getCookie(key) {
     let name = key + "=";
     let cookies = document.cookie.split(';');
-    for (let i = 0; i < cookies.length; i++) {
-        let c = cookies[i];
+    for (const element of cookies) {
+        let c = element;
         while (c.charAt(0) === ' ') {
             c = c.substring(1);
         }

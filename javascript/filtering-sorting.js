@@ -9,7 +9,7 @@
 
 
 /*
--------------------------------------- FILTER DATA -------------------------------------------
+-------------------------------------- FILTERING -------------------------------------------
  */
 
 /**
@@ -24,7 +24,6 @@
  * @param showHideParam - show only showHideParam items (set as false to show all items)
  * @param searchColumns
  */
-// function filterResults(dataSource, categories = null, searchString = null, ascDescParam = null, SortColumnParam = null, showHideParam = true, searchColumns = []) {
 function filterResults({
                                   dataSource, categories = null, searchString = null, ascDescParam = null,
                                   sortColumnParam = null, showHideParam = null, searchColumns = []
@@ -176,9 +175,138 @@ function processSearchFilter(categoryFilter = null) {
         categoryFilter = search['categoryFilter'];
     }
     generateItems(filterResults({
-        dataSource: jsonControllerData,
+        dataSource: datagridData,
         categories: search['categoryFilter'],
         searchString: search['searchString'],
         searchColumns: search['searchColumns']
     }));
+}
+
+/**
+ * Event occurs when clicking a Filter Category dropdown link.
+ * Filter items based on the data attribute of the clicked link.
+ * Also check if there is anything in the search box, and then filter using that.
+ */
+function filterCategoryLink(e) {
+    e.preventDefault();
+
+    // get filter item by data attribute
+    let categoryFilter = $(this).data('filter-by');
+
+    // Mark the menu item as active
+    $(".filter-by").each(function () {
+        if ($(this).html().toUpperCase().trim() === categoryFilter.toUpperCase().trim()) {
+            $(this).addClass('active');
+        } else {
+            $(this).removeClass('active');
+        }
+    });
+
+    if (categoryFilter === "Show All") {
+        categoryFilter = null;
+    }
+
+    // Generate items
+    processSearchFilter(categoryFilter);
+}
+
+/*
+-------------------------------------- SORTING -------------------------------------------
+ */
+
+
+/**
+ * Event occurs when clicking a Sort By column dropdown link.
+ * Items are sorted based on the data attribute of the clicked link.
+ */
+function sortItemLink(e) {
+    e.preventDefault();
+
+    // get sort item by data attribute
+    const sortColumnName = $(this).data('sort-by');
+
+    // Mark the menu item as active
+    $(".sort-by").each(function () {
+        if ($(this).html().toUpperCase().trim() === sortColumnName.toUpperCase().trim()) {
+            $(this).addClass('active');
+        } else {
+            $(this).removeClass('active');
+        }
+    });
+
+    // Generate items
+    if (sortColumnName) {
+        generateItems(filterResults({
+            dataSource: currentData,
+            sortColumnParam: sortColumnName
+        }));
+    }
+}
+
+/**
+ * Sort current results in either ascending or descending order.
+ */
+function sortAscDesc(e) {
+
+    // failsafe in case the cookie isn't set
+    let ascDesc = cookieManagement('get', 'asc_desc');
+    if (ascDesc !== 'asc' && ascDesc !== 'desc') {
+        ascDesc = $(this).data('asc-desc');
+        cookieManagement('set', 'asc_desc', ascDesc);
+    }
+
+    // if asc swap to desc, and vice versa
+    if (ascDesc === 'asc') {
+        ascDesc = 'desc';
+        $(this).html('<i class="fa-solid fa-arrow-down-z-a"></i>');
+    } else if (ascDesc === 'desc') {
+        ascDesc = 'asc';
+        $(this).html('<i class="fa-solid fa-arrow-down-a-z"></i>');
+    }
+
+    // Generate items
+    generateItems(filterResults({dataSource: currentData, ascDescParam: ascDesc}));
+}
+
+/**
+ * Submit search, occurs when clicking the main nav bar search button.
+ */
+function submitSearch(e) {
+    e.preventDefault();
+}
+
+/**
+ * Show or hide archived items
+ */
+function showHideArchived(e) {
+    // failsafe in case the cookie isn't set
+    let showHide = cookieManagement('get', 'show_archived');
+    if (showHide !== 'show' && showHide !== 'hide') {
+        showHide = 'show';
+        cookieManagement('set', 'show_archived', showHide);
+    }
+
+    // if show swap to hide, and vice versa
+    if (showHide === 'show') {
+        showHide = 'hide';
+        $(this).addClass('text-muted');
+        $(this).removeClass('text-success');
+    } else if (showHide === 'hide') {
+        showHide = 'show';
+        $(this).addClass('text-success');
+        $(this).removeClass('text-muted');
+    }
+
+    // Generate items
+    generateItems(filterResults({dataSource: datagridData, showHideParam: showHide}));
+}
+
+
+/**
+ * Disable the enter key from being pressed
+ * @param e
+ * @returns {boolean}
+ */
+function noEnter(e) {
+    if (e.which === 13) e.preventDefault();
 }

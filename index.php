@@ -16,20 +16,28 @@
 	$controller = 'Products';
 	
 	// use either 'show' or 'hide'
-	$columns = ['sku', 'title', 'price', 'quantity', 'short_description', 'long_description', 'bin', 'category', 'archived'];
+	$columns = ['sku', 'title', 'price', 'quantity', 'short_description', 'bin', 'category'];
 	
 	// Categorize the list of items with a category title and slug.
 	$categories = [
-		['title' => 'Computers',
-			'slug' => 'computers'],
+		['title' => 'Camera Parts',
+			'slug' => 'camera-parts'],
+		['title' => 'Cameras',
+			'slug' => 'cameras'],
 		['title' => 'Computer Parts',
 			'slug' => 'computer-parts'],
-		['title' => 'Laptop Parts',
-			'slug' => 'laptop-parts'],
-		['title' => 'Laptops',
-			'slug' => 'laptops'],
-		['title' => 'Horses',
-			'slug' => 'horses']
+		['title' => 'Computers',
+			'slug' => 'computers'],
+		['title' => 'Lenses',
+			'slug' => 'lenses'],
+        ['title' => 'Portable Audio',
+			'slug' => 'portable-audio'],
+        ['title' => 'Pro Audio Parts',
+			'slug' => 'pro-audio-parts'],
+		['title' => 'Stereos',
+			'slug' => 'stereo'],
+		['title' => 'Pro Audio Parts',
+			'slug' => 'pro-audio-parts']
 	];
 	// use either 'show' or 'hide'
 	$show_archived = 'show';
@@ -187,12 +195,10 @@
         crossorigin="anonymous"></script>
 <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
-<script src="products.js"></script>
-<script src="api.js"></script>
-<script src="func.js"></script>
-<script src="filter-sorts.js"></script>
-<script src="pagination.js"></script>
-<script src="load-last.js"></script>
-<script src="main.js"></script>
+<script src="javascript/test-data.js"></script>
+<script src="javascript/cookies.js"></script>
+<script src="javascript/filtering-sorting.js"></script>
+<script src="javascript/pagination.js"></script>
+<script src="javascript/main.js"></script>
 </body>
 </html>

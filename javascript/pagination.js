@@ -153,3 +153,126 @@ function paginateResults() {
         itemsOnPage.eq(i).show();
     }
 }
+
+/**
+ * Set pagination cookie based on link's data attribute. Check that the data attribute of the dropdown link is numeric,
+ * otherwise return the provided default. If that is not numeric either, set to 25 as a fall back.
+ * If neither data attributes are not numeric, that likely means a non-numeric value was entered in config.php.
+ */
+function resultsPerPageDropdownLink(e) {
+    e.preventDefault();
+
+    currentPage = 1;
+    startPage = 1;
+    totalPages = 1;
+
+    let count = $(this).data('count');
+
+    if (!isNaN(count) && parseInt(count) !== 0) {
+        count = parseInt(count);
+    } else {
+        let defaultCount = $('#pagination-dropdown-menu').data('default');
+        if (!isNaN(defaultCount)) {
+            count = defaultCount;
+        } else {
+            count = 25;
+        }
+    }
+
+    pagination(count);
+
+    $(".pagination-count").each(function () {
+        if (parseInt($(this).html()) === count) {
+            $(this).addClass('active');
+        } else {
+            $(this).removeClass('active');
+        }
+    });
+
+    cookieManagement('set', 'pagination_count', count);
+}
+
+/**
+ * Event occurs when clicking a page number button. Regenerates the paginator buttons when necessary.
+ * Prev and Next buttons are disabled if the current page is at the beginning or end.
+ */
+function pageNumberSelect(e) {
+    e.preventDefault();
+
+    const getPage = $(this).html();
+    const getData = $(this).parent('li').data("value");
+    const li = $('.pagination');
+    $('.page-item').removeClass('active');
+
+
+    if (getData === 'start' || getData === 'end') {
+        // Buttons that have start or end data attribute.
+        if (getPage === '1' && getData === 'start') {
+            // First page
+            currentPage = 1;
+            startPage = 1;
+        } else if (getPage === '...' && getData === 'start') {
+            // Second page
+            currentPage = 2;
+            startPage = 1;
+        } else if (getPage === '...' && getData === 'end') {
+            // Second last page
+            currentPage = totalPages - 1;
+            startPage = totalPages - 9;
+        } else if (getPage === totalPages.toString() && getData === 'end') {
+            // last page
+            currentPage = totalPages;
+            startPage = totalPages - 9;
+        }
+        generatePaginationButtons(startPage);
+
+    } else {
+        let previousStartPage = startPage;
+        // Regular numeric buttons or Prev and Next buttons
+        if (!isNaN(getPage)) {
+            // Numeric button
+            currentPage = parseInt(getPage);
+
+        } else if (getPage === '\u00ab Prev') {
+            // Prev page
+            currentPage -= 1;
+            startPage -= 1;
+
+        } else if (getPage === 'Next \u00bb') {
+            // Next page
+            currentPage += 1;
+            startPage += 1;
+        } else {
+            // An error occurred
+            currentPage = 1;
+        }
+
+        // Find the li button based on the updated currentPage. If it doesn't exist,
+        // regenerate buttons with the updated start page. Otherwise,
+        // the buttons don't need to be redrawn, set the active button to the new current page,
+        // and don't update the start page.
+        const nextLi = li.find('[data-value="' + currentPage + '"]');
+        if (nextLi.length === 0) {
+            generatePaginationButtons(startPage);
+        } else {
+            startPage = previousStartPage;
+            nextLi.addClass('active');
+        }
+    }
+
+    // enable and disable the prev and next buttons
+    let prevButton = li.find('[data-value="prev"]');
+    let nextButton = li.find('[data-value="next"]');
+    if (currentPage === 1) {
+        prevButton.addClass('disabled');
+        nextButton.removeClass('disabled');
+    } else if (currentPage === totalPages) {
+        prevButton.removeClass('disabled');
+        nextButton.addClass('disabled');
+    } else {
+        prevButton.removeClass('disabled');
+        nextButton.removeClass('disabled');
+    }
+
+    paginateResults();
+}
