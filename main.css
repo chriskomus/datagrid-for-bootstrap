@@ -1,0 +1,15 @@
+/*
+ * PHP & jQuery Datagrid
+ * Copyright (c) 2022 Chris Komus - GNU GPLv3
+ * https://github.com/chriskomus/
+ */
+
+body {
+    padding-top: 70px;
+    font-family: 'Quicksand', sans-serif;
+}
+
+.pagination > li a {
+    min-width: 2.5em;
+    text-align: center;
+}
