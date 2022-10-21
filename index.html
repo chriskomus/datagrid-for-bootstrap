@@ -1,0 +1,112 @@
+<!--/-->
+<!--  Data Driven Datagrid for Bootstrap-->
+<!--  Copyright (c) 2022 Chris Komus - GNU GPLv3-->
+<!--  https://github.com/chriskomus/-->
+<!-- /-->
+
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+
+    <title>Datagrid</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Quicksand:wght@300;400;500&display=swap"
+          rel="stylesheet">
+    <link rel="stylesheet" href="css/bootstrap.css">
+    <link rel="stylesheet" href="css/main.css">
+
+    <script src="https://kit.fontawesome.com/aaa301db0b.js" crossorigin="anonymous"></script>
+</head>
+<body>
+<main class="container mt-4 main">
+    <!-- START PAGE CONTENT -->
+
+    <div class="card mt-4 bg-light mb-3">
+        <div class="card-footer">
+            <div class="row">
+                <ul class="nav nav-pills justify-content-end" style="font-size: 0.9em;">
+                    <li class="me-4 mt-2 mb-2" id="header-results"></li>
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                           aria-haspopup="true"
+                           aria-expanded="false">Results Per Page</a>
+                        <div class="dropdown-menu" id="pagination-dropdown-menu">
+                            <!-- RESULTS PER PAGE DROPDOWN WILL BE GENERATED HERE -->
+                        </div>
+                    </li>
+                    <li>
+            <span class="col-sm-4">
+                <input class="form-control input-sm" type="text" name="page-search-input" id="page-search-input"
+                       onClick="this.select()" placeholder="Search..." data-columns="">
+        </span>
+                    </li>
+
+                    <li>
+                        <button type="button"
+                                class="btn btn-secondary text-success"
+                                id="show-archived" data-show-archived="show">
+                            <i class="fa-solid fa-box-archive"></i>
+                        </button>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button"
+                           aria-expanded="false">Filter Category</a>
+                        <ul class="dropdown-menu" id="filter-by-dropdown">
+                            <!-- FILTER-BY DROPDOWN WILL BE GENERATED HERE -->
+                        </ul>
+                    </li>
+
+                    <li class="nav-item dropdown">
+                        <a class="nav-link dropdown-toggle" id="main-dropdown-toggle" data-bs-toggle="dropdown"
+                           href="#"
+                           role="button"
+                           aria-expanded="false">Sort</a>
+                        <ul class="dropdown-menu" id="sort-by-dropdown">
+                            <!-- SORT-BY DROPDOWN WILL BE GENERATED HERE -->
+                        </ul>
+                    </li>
+                    <li>
+                        <button type="button" class="btn btn-secondary" id="sort-asc-desc"
+                                data-asc-desc="asc">
+                            <i class="fa-solid fa-arrow-down-z-a"></i>
+                        </button>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+
+    <!-- PAGINATION BUTTONS CONTAINER -->
+    <div class="" id="pagination-container"></div>
+
+    <!-- MAIN TABLE -->
+    <table class="table table-striped" data-toggle="table">
+        <thead class="align-middle">
+        <tr id="datagrid-table-header">
+            <!-- COLUMNS WILL BE GENERATED HERE -->
+        </tr>
+        </thead>
+        <tbody id="sortable-wrapper">
+        <!-- DATAGRID CONTENT WILL BE GENERATED HERE -->
+        </tbody>
+    </table>
+
+    <!-- PAGINATION STATS CONTAINER -->
+    <div class="alert alert-light" id="pagination-stats"></div>
+</main>
+
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"
+        integrity="sha384-ka7Sk0Gln4gmtz2MlQnikT1wXgYsOg+OMhuP+IlRH9sENBO0LRn5q+8nbTov4+1p"
+        crossorigin="anonymous"></script>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+<script src="javascript/sample-data.js"></script>
+<script src="javascript/datagrid.js"></script>
+</body>
+</html>
