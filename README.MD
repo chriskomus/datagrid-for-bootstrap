@@ -12,7 +12,7 @@
 * Format specified columns as currency
 * Datagrid pagination and sort settings stored as cookies, so the same sort order and paginated results per page on every page load. Dynamically provide cookie key prefixes if using multiple datagrids.
 * Works with Bootstrap v5
-* Uses pure JavaScript and no additional 3rd party packages.
+* Uses pure JavaScript.
 
 # Getting Started
 * Check the sample-data.js file to see how data and columns should be provided to datagrid.js.
@@ -21,4 +21,4 @@
 
 # Dependancies
 * Bootstrap v5
-* Font Awesome
+* Font Awesome (Not required, only used for the Archive and Sort By Button)
