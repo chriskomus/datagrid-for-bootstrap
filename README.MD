@@ -24,4 +24,4 @@
 * Font Awesome (Not required, only used for the Archive and Sort By Button)
 
 # Screenshot
-![Login Page](https://github.com/chriskomus/datagrid-for-bootstrap/blob/main/images/sample_screenshot.jpg?raw=true)
+![Datagrid](https://github.com/chriskomus/datagrid-for-bootstrap/blob/master/images/sample_screenshot.jpg?raw=true)
