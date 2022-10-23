@@ -1,5 +1,3 @@
-
-
 /*
  * Data Driven Datagrid for Bootstrap
  * Copyright (c) 2022 Chris Komus - GNU GPLv3
@@ -18,7 +16,7 @@ const cookiePrefix = 'sample';
 const datagridDefaultPagination = 25;
 
 // This displays the results per page dropdown.
-const datagridPaginationOptions = [5, 10, 25, 50, 100];
+const datagridPaginationOptions = [2, 5, 10, 25, 50, 100];
 
 // These are the columns that will display in the datagrid, and should match a root node of the json response. (ie: price)
 const datagridColumns = sampleDatagridColumns; // sampleDatagridColumns is foiund in sample-data.js
@@ -53,25 +51,33 @@ let currentData = [];
 function load() {
 
     // add event handlers to page elements
-    // $('.filter-by').on('click', filterCategoryLink);
-    // $('.sort-by').on('click', sortItemLink);
-    $('#sort-asc-desc').on('click', sortAscDesc);
-    $('#page-search-input').on('keyup', waitForChangesPageSearch);
-    $('#page-search-input').on('keypress', noEnter);
-    $('#search-button').on('click', submitSearch);
-    $('#show-archived').on('click', showHideArchived);
+    document.getElementById('sort-asc-desc').addEventListener('click', sortAscDesc);
+    document.getElementById('page-search-input').addEventListener('keyup', waitForChangesPageSearch);
+    document.getElementById('page-search-input').addEventListener('keypress', noEnter);
+    document.getElementById('show-archived').addEventListener('click', showHideArchived);
     // add event handler to dynamically created elements
 
-    $(document).on('click', '.page-link', pageNumberSelect);
-    $(document).on('click', '.filter-by', filterCategoryLink);
-    $(document).on('click', '.sort-by', sortItemLink);
-    $(document).on('click', '.pagination-count', resultsPerPageDropdownLink);
+    document.addEventListener('click', function (e) {
+        if (hasClass(e.target, 'page-link')) {
+            pageNumberSelect(e);
+        } else if (hasClass(e.target, 'filter-by')) {
+            filterCategoryLink(e);
+        } else if (hasClass(e.target, 'sort-by')) {
+            sortItemLink(e);
+        } else if (hasClass(e.target, 'pagination-count')) {
+            resultsPerPageDropdownLink(e);
+        }
+    }, false);
 
     // generate sort by and filter by dropdown menus
     generateMenuOptions()
 
     // generate items from the data set and place on the page
     generateItems(filterResults({dataSource: datagridData}));
+}
+
+function hasClass(elem, className) {
+    return elem.className.split(' ').indexOf(className) > -1;
 }
 
 /*
@@ -84,48 +90,41 @@ function load() {
 function generateMenuOptions() {
     // GENERATE SORT-BY MENU AND TABLE HEADERS
     // ---------------------------------------
-    let dropdownContainer = $('#sort-by-dropdown');
-    dropdownContainer.empty();
+    let dropdownContainer = document.getElementById('sort-by-dropdown');
+    dropdownContainer.innerHTML = '';
 
-    let tableHeader = $('#datagrid-table-header');
-    tableHeader.empty();
+    let tableHeader = document.getElementById('datagrid-table-header');
+    tableHeader.innerHTML = '';
 
     datagridColumns.forEach(item => {
         // Generate sort by menu option
         let isActive = '';
         let sortColumn = cookieManagement('get', 'sort_by_column');
         if (!sortColumn) sortColumn = datagridDefaultSortBy;
-        if (item === sortColumn)isActive = ' active';
+        if (item === sortColumn) isActive = ' active';
 
-        const newSortByItem = ($('<li/>'));
-        newSortByItem.append($('<a/>', {'class': 'dropdown-item sort-by' + isActive,
-                                    'href': '#',
-                                    'data-sort-by': item})
-            .text(toTitleCase(item.replace('_', ' ')))
-        );
-        dropdownContainer.append(newSortByItem);
+        const newSortByItem = document.createElement('li');
+        newSortByItem.innerHTML = `<a href="#" data-sort-by="` + item + `" class="dropdown-item sort-by` + isActive + `">` + toTitleCase(item.replace('_', ' ')) + `</a>`;
+        dropdownContainer.appendChild(newSortByItem);
 
         // Generate table column header
-        const newTableHeaderItem = ($('<th/>'));
-        newTableHeaderItem.append($('<a/>', {'class': 'text-muted text-decoration-none sort-by',
-            'href': '#',
-            'data-sort-by': item})
-            .text(toTitleCase(item.replace('_', ' ')))
-        );
-        tableHeader.append(newTableHeaderItem);
+        const newTableHeaderItem = document.createElement('th');
+        newTableHeaderItem.innerHTML = `<a href="#" data-sort-by="` + item + `" class="text-muted text-decoration-none sort-by">` + toTitleCase(item.replace('_', ' ')) + `</a>`;
+        tableHeader.appendChild(newTableHeaderItem);
     });
 
     // Determine whether to sort asc or desc on page load
     sortAscDesc(false);
 
     // Determine the columns that are searchable
-    const searchColumns = datagridColumns.filter(x => !datagridSearchExclusion.includes(x));
-    $('#page-search-input').attr('data-columns', searchColumns);
+    // console.log(document.getElementById('page-search-input'));
+
+    document.getElementById('page-search-input').dataset.columns = datagridColumns.filter(x => !datagridSearchExclusion.includes(x));
 
     // GENERATE FILTER-BY MENU
     // -----------------------
-    dropdownContainer = $('#filter-by-dropdown');
-    dropdownContainer.empty();
+    dropdownContainer = document.getElementById('filter-by-dropdown');
+    dropdownContainer.innerHTML = '';
 
     const filterCategoryOptions = [];
     datagridData.forEach(item => {
@@ -134,32 +133,22 @@ function generateMenuOptions() {
     });
 
     // Add Show All Filter Category
-    let newItems = ($('<li/>'));
-    newItems.append($('<a/>', {'class': 'dropdown-item filter-by active',
-        'href': '#',
-        'data-filter-by': 'Show All'})
-        .text('Show All')
-    );
-    dropdownContainer.append(newItems);
+    let newItems = document.createElement('li');
+    newItems.innerHTML = `<a href="#" data-filter-by="Show All" class="dropdown-item filter-by active">Show All</a>`;
+    dropdownContainer.appendChild(newItems);
 
     // Add Filter Categories
     filterCategoryOptions.forEach(item => {
         // Generate item
-        newItems = ($('<li/>'));
-
-        newItems.append($('<a/>', {'class': 'dropdown-item filter-by',
-            'href': '#',
-            'data-filter-by': item})
-            .text(item)
-        );
-
-        dropdownContainer.append(newItems);
+        newItems = document.createElement('li');
+        newItems.innerHTML = `<a href="#" data-filter-by="` + item + `" class="dropdown-item filter-by">` + item + `</a>`;
+        dropdownContainer.appendChild(newItems);
     });
 
     // GENERATE PAGINATION OPTIONS
     // ---------------------------
-    dropdownContainer = $('#pagination-dropdown-menu');
-    dropdownContainer.empty();
+    dropdownContainer = document.getElementById('pagination-dropdown-menu');
+    dropdownContainer.innerHTML = '';
 
     // Add Pagination Options
     datagridPaginationOptions.forEach(item => {
@@ -172,15 +161,9 @@ function generateMenuOptions() {
         }
 
         // Generate item
-        newItems = ($('<li/>'));
-
-        newItems.append($('<a/>', {'class': 'dropdown-item pagination-count' + isActive,
-            'href': '#',
-            'data-count': item})
-            .text(item)
-        );
-
-        dropdownContainer.append(newItems);
+        newItems = document.createElement('li');
+        newItems.innerHTML = `<a href="#" data-count="` + item + `" class="dropdown-item pagination-count` + isActive + `">` + item + `</a>`;
+        dropdownContainer.appendChild(newItems);
     });
 }
 
@@ -188,10 +171,8 @@ function generateMenuOptions() {
  * Generate items on the page from a data source.
  */
 function generateItems(data) {
-    $('.sortable-item').remove();
-
-    let container = $('#sortable-wrapper');
-    container.empty();
+    let container = document.getElementById('sortable-wrapper');
+    container.innerHTML = '';
 
     data.forEach(item => {
         // Get id
@@ -204,33 +185,28 @@ function generateItems(data) {
         }
 
         // Generate row
-        const newItems = (
-            $('<tr/>', {'class': 'sortable-item', 'id': 'product-' + id})
-        );
+        const newItems = document.createElement('tr');
+        newItems.classList.add('sortable-item');
+        newItems.setAttribute('id', 'product-' + id);
 
         // Add td for each visible column
         datagridColumns.forEach(column => {
-            let tdAttributes = {'class': archived};
-
             let newTdText = item[column];
             if (newTdText) {
                 if (newTdText.length > 75) {
                     newTdText = newTdText.toString().substring(0, 75) + '...';
                 }
+            } else {
+                newTdText = '';
             }
             if (column === 'price') {
-                newItems.append($('<td/>', tdAttributes)
-                    .text(formatAsCurrency(newTdText))
-                );
-
+                newItems.innerHTML += `<td class="` + archived + `">` + formatAsCurrency(newTdText) + `</td>`;
             } else {
-                newItems.append($('<td/>', tdAttributes)
-                    .text(newTdText)
-                );
+                newItems.innerHTML += `<td class="` + archived + `">` + newTdText + `</td>`;
             }
         });
 
-        container.append(newItems);
+        container.appendChild(newItems);
     });
 
     currentPage = 1;
@@ -250,7 +226,7 @@ function formatAsCurrency(price, callForPricing = false) {
         if (callForPricing === true) {
             return 'Call for pricing';
         } else {
-            return null;
+            return '';
         }
     }
 }
@@ -261,7 +237,7 @@ function formatAsCurrency(price, callForPricing = false) {
 function toTitleCase(str) {
     return str.replace(
         /\w\S*/g,
-        function(txt) {
+        function (txt) {
             return txt.charAt(0).toUpperCase() + txt.substr(1).toLowerCase();
         }
     );
@@ -281,7 +257,7 @@ function toTitleCase(str) {
 function cookieManagement(getOrSet, cookieSuffix, cookieValue = null, daysToExpire = 14) {
     let prefix = '';
 
-    if(cookiePrefix) {
+    if (cookiePrefix) {
         prefix = cookiePrefix + '_';
     } else {
         return null;
@@ -454,15 +430,18 @@ function filterResults({
  */
 function searchResults(includeFilterDropdown = false) {
     // get search result by input, and where to search by data attribute
-    const searchInput = $('#page-search-input');
-    let columns = searchInput.data('columns').split(',');
-    let search = searchInput.val().trim().toUpperCase();
+    const searchInput = document.getElementById('page-search-input');
+
+    let columns = searchInput.dataset.columns.split(',');
+    let search = searchInput.value.trim().toUpperCase();
 
     // look for Filter dropdown items that are set to true
     let categories = [];
     if (includeFilterDropdown) {
-        $('.filter-by').filter('.active').each(function () {
-            const category = $(this).data('filter-by');
+        const elements = document.getElementsByClassName('filter-by active');
+
+        Array.from(elements).forEach(elem => {
+            const category = elem.getAttribute('data-filter-by');
             if (category === 'Show All') {
                 categories = [];
                 return false;
@@ -488,7 +467,6 @@ function searchResults(includeFilterDropdown = false) {
 
 /**
  * Process search data and send to the filter, then regenerate items.
- * @param categoryFilter
  */
 function processSearchFilter() {
     const search = searchResults({includeFilterDropdown: true});
@@ -510,14 +488,15 @@ function filterCategoryLink(e) {
     e.preventDefault();
 
     // get filter item by data attribute
-    let categoryFilter = $(this).data('filter-by');
+    const categoryFilter = e.target.getAttribute('data-filter-by');
 
     // Mark the menu item as active
-    $(".filter-by").each(function () {
-        if ($(this).html().toUpperCase().trim() === categoryFilter.toUpperCase().trim()) {
-            $(this).addClass('active');
+    const elements = document.getElementsByClassName('filter-by');
+    Array.from(elements).forEach(elem => {
+        if (elem.innerHTML.toUpperCase().trim() === categoryFilter.toUpperCase().trim()) {
+            elem.classList.add('active');
         } else {
-            $(this).removeClass('active');
+            elem.classList.remove('active');
         }
     });
 
@@ -538,14 +517,15 @@ function sortItemLink(e) {
     e.preventDefault();
 
     // get sort item by data attribute
-    const sortColumnName = $(this).data('sort-by');
+    const sortColumnName = e.target.getAttribute('data-sort-by');
 
     // Mark the menu item as active
-    $(".sort-by").each(function () {
-        if ($(this).html().toUpperCase().trim() === sortColumnName.toUpperCase().trim()) {
-            $(this).addClass('active');
+    const elements = document.getElementsByClassName('sort-by');
+    Array.from(elements).forEach(elem => {
+        if (elem.innerHTML.toUpperCase().trim() === sortColumnName.toUpperCase().trim()) {
+            elem.classList.add('active');
         } else {
-            $(this).removeClass('active');
+            elem.classList.remove('active');
         }
     });
 
@@ -564,12 +544,12 @@ function sortItemLink(e) {
  * Otherwise set to false to determine sort by asc or desc on page load.
  */
 function sortAscDesc(swap = true) {
-    const sortButton = $('#sort-asc-desc');
+    const sortButton = document.getElementById('sort-asc-desc');
 
     // failsafe in case the cookie isn't set
     let ascDesc = cookieManagement('get', 'asc_desc');
     if (ascDesc !== 'asc' && ascDesc !== 'desc') {
-        ascDesc = sortButton.data('asc-desc');
+        ascDesc = sortButton.getAttribute('asc-desc');
         cookieManagement('set', 'asc_desc', ascDesc);
     }
 
@@ -577,19 +557,19 @@ function sortAscDesc(swap = true) {
         // if asc swap to desc, and vice versa
         if (ascDesc === 'asc') {
             ascDesc = 'desc';
-            sortButton.html('<i class="fa-solid fa-arrow-down-z-a"></i>');
+            sortButton.innerHTML = `<i class="fa-solid fa-arrow-down-z-a"></i>`;
         } else if (ascDesc === 'desc') {
             ascDesc = 'asc';
-            sortButton.html('<i class="fa-solid fa-arrow-down-a-z"></i>');
+            sortButton.innerHTML = `<i class="fa-solid fa-arrow-down-a-z"></i>`;
         }
 
         // Generate items
         generateItems(filterResults({dataSource: currentData, ascDescParam: ascDesc}));
     } else {
         if (ascDesc === 'asc') {
-            sortButton.html('<i class="fa-solid fa-arrow-down-a-z"></i>');
+            sortButton.innerHTML = `<i class="fa-solid fa-arrow-down-a-z"></i>`;
         } else if (ascDesc === 'desc') {
-            sortButton.html('<i class="fa-solid fa-arrow-down-z-a"></i>');
+            sortButton.innerHTML = `<i class="fa-solid fa-arrow-down-z-a"></i>`;
         }
     }
 }
@@ -605,6 +585,8 @@ function submitSearch(e) {
  * Show or hide archived items
  */
 function showHideArchived() {
+    const button = document.getElementById('show-archived');
+
     // failsafe in case the cookie isn't set
     let showHide = cookieManagement('get', 'show_archived');
     if (showHide !== 'show' && showHide !== 'hide') {
@@ -615,12 +597,12 @@ function showHideArchived() {
     // if show swap to hide, and vice versa
     if (showHide === 'show') {
         showHide = 'hide';
-        $(this).addClass('text-muted');
-        $(this).removeClass('text-success');
+        button.classList.add('text-primary');
+        button.classList.remove('text-success');
     } else if (showHide === 'hide') {
         showHide = 'show';
-        $(this).addClass('text-success');
-        $(this).removeClass('text-muted');
+        button.classList.add('text-success');
+        button.classList.remove('text-primary');
     }
 
     // Generate items
@@ -654,20 +636,19 @@ let numberOfResults = 0;
  * @param startAtPage - Starting page. This is the first number in the series of buttons.
  */
 function generatePaginationButtons(startAtPage = startPage, numberOfPages = totalPages) {
-    const main = $('#pagination-container');
-
-    main.empty();
+    const main = document.getElementById('pagination-container');
+    main.innerHTML = '';
 
     if (numberOfPages > 1) {
         let newButtons = '<ul class="pagination pagination-sm">';
-        const newLiStart = '<li class="page-item" data-value=""><a class="page-link paginator" href="#">';
+        const newLiStart = '<li class="page-item" data-paginated-value=""><a class="page-link paginator" href="#">';
         const newLiEnd = '</a></li>';
 
         let displayPages = 10;
 
         // Prev button
         let liStart = newLiStart;
-        liStart = liStart.replace('data-value=""', 'data-value="prev"');
+        liStart = liStart.replace('data-paginated-value=""', 'data-paginated-value="prev"');
         if (numberOfPages < 10) {
             displayPages = numberOfPages;
         }
@@ -684,11 +665,11 @@ function generatePaginationButtons(startAtPage = startPage, numberOfPages = tota
         // To Start Buttons (1 ... )
         if (numberOfPages > 10 && currentPage > (numberOfPages - 9)) {
             liStart = newLiStart;
-            liStart = liStart.replace('data-value=""', 'data-value="start"');
+            liStart = liStart.replace('data-paginated-value=""', 'data-paginated-value="start"');
             newButtons += liStart + '1' + newLiEnd;
 
             liStart = newLiStart;
-            liStart = liStart.replace('data-value=""', 'data-value="start"');
+            liStart = liStart.replace('data-paginated-value=""', 'data-paginated-value="start"');
             newButtons += liStart + '...' + newLiEnd;
         }
 
@@ -700,24 +681,24 @@ function generatePaginationButtons(startAtPage = startPage, numberOfPages = tota
             } else {
                 // to do
             }
-            liStart = liStart.replace('data-value=""', 'data-value="' + i + '"');
+            liStart = liStart.replace('data-paginated-value=""', 'data-paginated-value="' + i + '"');
             newButtons += liStart + i + newLiEnd;
         }
 
         // To End Buttons (ie: ... 100)
         if (numberOfPages > 10 && currentPage < (numberOfPages - 9)) {
             liStart = newLiStart;
-            liStart = liStart.replace('data-value=""', 'data-value="end"');
+            liStart = liStart.replace('data-paginated-value=""', 'data-paginated-value="end"');
             newButtons += liStart + '...' + newLiEnd;
 
             liStart = newLiStart;
-            liStart = liStart.replace('data-value=""', 'data-value="end"');
+            liStart = liStart.replace('data-paginated-value=""', 'data-paginated-value="end"');
             newButtons += liStart + numberOfPages + newLiEnd;
         }
 
         // Next button
         liStart = newLiStart;
-        liStart = liStart.replace('data-value=""', 'data-value="next"');
+        liStart = liStart.replace('data-paginated-value=""', 'data-paginated-value="next"');
 
         if (startAtPage === numberOfPages - 9) {
             liStart = liStart.replace('class="', 'class="disabled ');
@@ -726,7 +707,7 @@ function generatePaginationButtons(startAtPage = startPage, numberOfPages = tota
 
         // Add to page
         newButtons += '</ul>';
-        main.append(newButtons);
+        main.innerHTML = newButtons;
     }
 }
 
@@ -754,11 +735,8 @@ function pagination(count = null) {
     }
 
     // set total pages
-    numberOfResults = $('.sortable-item').length;
+    numberOfResults = document.getElementsByClassName('sortable-item').length;
     totalPages = Math.ceil(numberOfResults / maxItemsPerPage);
-
-    // display the number of results in the filter-sorts header bar
-    $('#results-shown').text(numberOfResults);
 
     // generate buttons and paginate results
     generatePaginationButtons();
@@ -778,16 +756,20 @@ function paginateResults() {
     let results = "No items found."
     if (numberOfResults) {
         results = 'Displaying ' + firstOnPage + ' to ' + lastOnPage + ' of ' + numberOfResults + ' results.';
-        $('#header-results').text('Total: ' + numberOfResults + ' results');
+        document.getElementById('header-results').innerText = 'Total: ' + numberOfResults + ' results';
     }
 
-    $('#pagination-stats').text(results);
+    document.getElementById('pagination-stats').innerText = results;
 
-    const itemsOnPage = $('.sortable-item');
-    itemsOnPage.hide();
+    const itemsOnPage = document.getElementsByClassName('sortable-item');
+    Array.from(itemsOnPage).forEach(elem => {
+        elem.style.display = 'none'
+    });
 
     for (let i = firstOnPage - 1; i < (firstOnPage + maxItemsPerPage) - 1; i++) {
-        itemsOnPage.eq(i).show();
+        if (itemsOnPage[i]) {
+            itemsOnPage[i].style.display = '';
+        }
     }
 }
 
@@ -802,12 +784,13 @@ function resultsPerPageDropdownLink(e) {
     startPage = 1;
     totalPages = 1;
 
-    let count = $(this).data('count');
+    let count = e.target.getAttribute('data-count');
 
     if (!isNaN(count) && parseInt(count) !== 0) {
         count = parseInt(count);
     } else {
-        let defaultCount = $('#pagination-dropdown-menu').data('default');
+        let defaultCount = document.getElementById('pagination-dropdown-menu').dataset.default;
+        console.log(defaultCount);
         if (!isNaN(defaultCount)) {
             count = defaultCount;
         } else {
@@ -817,11 +800,13 @@ function resultsPerPageDropdownLink(e) {
 
     pagination(count);
 
-    $(".pagination-count").each(function () {
-        if (parseInt($(this).html()) === count) {
-            $(this).addClass('active');
+    const paginationCount = document.getElementsByClassName('pagination-count')
+
+    Array.from(paginationCount).forEach(elem => {
+        if (parseInt(elem.innerText) === count) {
+            elem.classList.add('active');
         } else {
-            $(this).removeClass('active');
+            elem.classList.remove('active');
         }
     });
 
@@ -835,11 +820,13 @@ function resultsPerPageDropdownLink(e) {
 function pageNumberSelect(e) {
     e.preventDefault();
 
-    const getPage = $(this).html();
-    const getData = $(this).parent('li').data("value");
-    const li = $('.pagination');
-    $('.page-item').removeClass('active');
+    const getPage = e.target.textContent;
+    const getData = e.target.parentNode.getAttribute('data-paginated-value');
+    const pageItems = document.querySelectorAll('.page-item');
 
+    [].forEach.call(pageItems, function (el) {
+        el.classList.remove('active');
+    });
 
     if (getData === 'start' || getData === 'end') {
         // Buttons that have start or end data attribute.
@@ -883,31 +870,31 @@ function pageNumberSelect(e) {
             currentPage = 1;
         }
 
-        // Find the li button based on the updated currentPage. If it doesn't exist,
+        // Find the listItems button based on the updated currentPage. If it doesn't exist,
         // regenerate buttons with the updated start page. Otherwise,
         // the buttons don't need to be redrawn, set the active button to the new current page,
         // and don't update the start page.
-        const nextLi = li.find('[data-value="' + currentPage + '"]');
-        if (nextLi.length === 0) {
+        const nextLi = document.querySelector('[data-paginated-value="' + currentPage + '"]');
+        if (!nextLi) {
             generatePaginationButtons(startPage);
         } else {
             startPage = previousStartPage;
-            nextLi.addClass('active');
+            nextLi.classList.add('active');
         }
     }
 
     // enable and disable the prev and next buttons
-    let prevButton = li.find('[data-value="prev"]');
-    let nextButton = li.find('[data-value="next"]');
+    let prevButton = document.querySelector('[data-paginated-value="prev"]');
+    let nextButton = document.querySelector('[data-paginated-value="next"]');
     if (currentPage === 1) {
-        prevButton.addClass('disabled');
-        nextButton.removeClass('disabled');
+        prevButton.classList.add('disabled');
+        nextButton.classList.remove('disabled');
     } else if (currentPage === totalPages) {
-        prevButton.removeClass('disabled');
-        nextButton.addClass('disabled');
+        prevButton.classList.remove('disabled');
+        nextButton.classList.add('disabled');
     } else {
-        prevButton.removeClass('disabled');
-        nextButton.removeClass('disabled');
+        prevButton.classList.remove('disabled');
+        nextButton.classList.remove('disabled');
     }
 
     paginateResults();
