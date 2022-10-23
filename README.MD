@@ -22,3 +22,6 @@
 # Dependancies
 * Bootstrap v5
 * Font Awesome (Not required, only used for the Archive and Sort By Button)
+
+# Screenshot
+![Login Page](https://github.com/chriskomus/datagrid-for-bootstrap/blob/main/images/sample_screenshot.jpg?raw=true)
